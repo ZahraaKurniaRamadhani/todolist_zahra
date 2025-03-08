@@ -1,20 +1,35 @@
 <?php
 include 'koneksi.php';
 
+$error = ""; 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-    $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $username, $email, $password);
+    if (empty($username) || empty($email) || empty($password)) {
+        $error = "Semua field harus diisi!";
+    } 
+    elseif (!strpos($email, '@')) {
+        $error = "Email harus valid dan mengandung '@'!";
+    } 
+    elseif (strlen($password) < 6 || preg_match('/[^a-zA-Z0-9]/', $password)) {
+        $error = "Password harus minimal 6 karakter dan tidak boleh ada simbol!";
+    } 
+    else {
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    if ($stmt->execute()) {
-        header("Location: login.php");
-        exit();
-    } else {
-        $error = "Pendaftaran gagal!";
+        $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sss", $username, $email, $hashed_password);
+
+        if ($stmt->execute()) {
+            header("Location: login.php");
+            exit();
+        } else {
+            $error = "Pendaftaran gagal!";
+        }
     }
 }
 ?>
@@ -38,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 0;
         }
         .container {
-            background-color: #00BFFF ;
+            background-color: #00BFFF;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
@@ -80,11 +95,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-decoration: none;
             color: #007bff;
         }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h2><i class="fas fa-user-plus"></i> Register</h2>
+
+    <?php if (!empty($error)): ?>
+        <p class="error"><?php echo $error; ?></p>
+    <?php endif; ?>
+
     <form method="POST">
         <div class="input-container">
             <i class="fas fa-user"></i>
