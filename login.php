@@ -5,23 +5,31 @@ include 'koneksi.php';
 $login_error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
 
-    $sql = "SELECT * FROM users WHERE username=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+    if (empty($username) || empty($password)) {
+        $login_error = "Semua field harus diisi!";
+    } 
+    elseif (strlen($password) < 6 || preg_match('/[^a-zA-Z0-9]/', $password)) {
+        $login_error = "Password harus minimal 6 karakter dan tidak boleh ada simbol!";
+    } 
+    else {
+        $sql = "SELECT * FROM users WHERE username=?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username']; 
-        header("Location: index.php");
-        exit();
-    } else {
-        $login_error = "Username atau kata sandi salah.";
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            header("Location: index.php");
+            exit();
+        } else {
+            $login_error = "Username atau password salah.";
+        }
     }
 }
 ?>
@@ -99,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="container">
     <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
     
-    <?php if ($login_error): ?>
+    <?php if (!empty($login_error)): ?>
         <p class="error-message"> <?php echo $login_error; ?> </p>
     <?php endif; ?>
     
