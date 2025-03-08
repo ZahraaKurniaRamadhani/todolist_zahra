@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <option value="Belum Dikerjakan">Belum Dikerjakan</option>
             <option value="Selesai">Selesai</option>
         </select>
-        <button type="submit">Tambah Tugas</button>
+        <button type="submit">Tambah Sub Tugas</button>
         <div class="subtasks" id="subtasks">
     <input type="text" name="sub_tasks[]" placeholder="Sub-tugas" required>
 </div>
