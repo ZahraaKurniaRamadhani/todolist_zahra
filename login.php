@@ -11,8 +11,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($username) || empty($password)) {
         $login_error = "Semua field harus diisi!";
     } 
-    elseif (strlen($password) < 6 || preg_match('/[^a-zA-Z0-9]/', $password)) {
-        $login_error = "Password harus minimal 6 karakter dan tidak boleh ada simbol!";
+    elseif (strlen($password) < 6) { 
+        $login_error = "Password harus minimal 6 karakter!";
     } 
     else {
         $sql = "SELECT * FROM users WHERE username=?";
