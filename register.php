@@ -14,21 +14,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     elseif (!strpos($email, '@')) {
         $error = "Email harus valid dan mengandung '@'!";
     } 
-    elseif (strlen($password) < 6 || preg_match('/[^a-zA-Z0-9]/', $password)) {
-        $error = "Password harus minimal 6 karakter dan tidak boleh ada simbol!";
+    elseif (strlen($password) < 6) { 
+        $error = "Password harus minimal 6 karakter!";
     } 
     else {
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+        // Cek apakah username sudah ada
+        $check_sql = "SELECT id FROM users WHERE username = ?";
+        $stmt = $conn->prepare($check_sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->store_result();
 
-        $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $username, $email, $hashed_password);
-
-        if ($stmt->execute()) {
-            header("Location: login.php");
-            exit();
+        if ($stmt->num_rows > 0) {
+            $error = "Username sudah digunakan!";
         } else {
-            $error = "Pendaftaran gagal!";
+            // Jika username belum ada, lanjutkan pendaftaran
+            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+            $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sss", $username, $email, $hashed_password);
+
+            if ($stmt->execute()) {
+                header("Location: login.php");
+                exit();
+            } else {
+                $error = "Pendaftaran gagal!";
+            }
         }
     }
 }
