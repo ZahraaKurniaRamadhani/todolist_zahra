@@ -154,21 +154,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </select>
         <button type="submit">Tambah Tugas</button>
         <div class="subtasks" id="subtasks">
-            <input type="text" name="sub_tasks[]" placeholder="Sub-tugas 1">
+            <input type="text" name="sub_tasks[]" placeholder="Sub-tugas">
         </div>
         <button type="button" onclick="addSubtask()">Tambah Sub-tugas</button>
     </form>
     <a href="index.php" class="btn-kembali">Kembali</a>
 </div>
 
-<script>
-    function addSubtask() {
-        var subtaskInput = document.createElement('input');
-        subtaskInput.type = 'text';
-        subtaskInput.name = 'sub_tasks[]';
-        subtaskInput.placeholder = 'Sub-tugas tambahan';
-        document.getElementById('subtasks').appendChild(subtaskInput);
-    }
-</script>
 </body>
 </html>
