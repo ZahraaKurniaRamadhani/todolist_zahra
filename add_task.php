@@ -20,10 +20,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($title) || empty($due_date)) {
         echo "<script>alert('Judul dan Tanggal Jatuh Tempo harus diisi!');</script>";
     } else {
+        if (!empty($_POST['sub_tasks'])) {
+            foreach ($_POST['sub_tasks'] as $sub_task) {
+                if (empty(trim($sub_task))) {
+                    die("Semua subtugas harus diisi! <a href='tambah_tugas.php'>Kembali</a>");
+                }
+            }
+        }
+
         if (!$conn) {
             die("Koneksi database gagal!");
         }
-
         $query = "INSERT INTO tasks (user_id, task, description, due_date, priority, status) 
                   VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($query);
@@ -42,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
             }
-
             header("Location: daftar_tugas.php");
             exit();
         } else {
@@ -140,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <h2>Tambah Tugas</h2>
     <form action="" method="POST">
         <input type="text" name="title" placeholder="Judul Tugas" required>
-        <textarea name="description" placeholder="Deskripsi Tugas"></textarea>
+        <textarea name="description" placeholder="Deskripsi Tugas" required></textarea>
         <input type="date" name="due_date" min="<?= date('Y-m-d') ?>" required>
         <select name="priority">
             <option value="Mendesak">Mendesak</option>
@@ -154,9 +160,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </select>
         <button type="submit">Tambah Tugas</button>
         <div class="subtasks" id="subtasks">
-            <input type="text" name="sub_tasks[]" placeholder="Sub-tugas">
-        </div>
-        <button type="button" onclick="addSubtask()">Tambah Sub-tugas</button>
+    <input type="text" name="sub_tasks[]" placeholder="Sub-tugas" required>
+</div>
+<button type="submit">Tambah Tugas</button>
+
     </form>
     <a href="index.php" class="btn-kembali">Kembali</a>
 </div>
