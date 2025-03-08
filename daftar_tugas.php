@@ -33,7 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['task_id'])) {
     exit();
 }
 
-$query = "SELECT t.*, s.sub_task 
+$query = "SELECT t.*, s.sub_task, 
+            DATEDIFF(t.due_date, CURDATE()) AS sisa_hari
           FROM tasks t 
           LEFT JOIN subtasks s ON t.id = s.task_id 
           WHERE t.user_id = ? 
@@ -89,18 +90,6 @@ if (isset($_POST['logout'])) {
             text-decoration: line-through;
             color: gray;
         }
-        .logout-btn {
-            background: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .logout-btn:hover {
-            background: #cc0000;
-        }
         .container {
             background: white;
             padding: 20px;
@@ -121,16 +110,16 @@ if (isset($_POST['logout'])) {
         .task.selesai {
             background: #66b3ff;
         }
-        .task h3 {
-            margin: 0;
-            font-size: 18px;
-        }
-        .task p {
-            margin: 5px 0;
-        }
         .task-actions {
             display: flex;
             gap: 10px;
+        }
+        .task-right {
+            text-align: right;
+        }
+        .late {
+            color: red;
+            font-weight: bold;
         }
     </style>
     <meta charset="UTF-8">
@@ -141,7 +130,7 @@ if (isset($_POST['logout'])) {
 <div class="header">
     <h1>Daftar Tugas</h1>
     <form method="POST">
-        <button type="submit" name="logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button type="submit" name="logout" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </form>
 </div>
 <div class="container">
@@ -151,11 +140,9 @@ if (isset($_POST['logout'])) {
                 <h3 class="<?php echo ($task['status'] == 'Selesai') ? 'completed' : ''; ?>">
                     <?php echo htmlspecialchars($task['task']); ?>
                 </h3>
-
                 <p class="<?php echo ($task['status'] == 'Selesai') ? 'completed' : ''; ?>">
                     <strong>Sub-tugas:</strong> <?php echo htmlspecialchars($task['sub_task']); ?>
                 </p>
-
                 <p class="<?php echo ($task['status'] == 'Selesai') ? 'completed' : ''; ?>">
                     <?php echo htmlspecialchars($task['description']); ?>
                 </p>
@@ -169,7 +156,14 @@ if (isset($_POST['logout'])) {
                     <strong>Status:</strong> <?php echo htmlspecialchars($task['status']); ?>
                 </p>
             </div>
-            <div class="task-actions">
+            <div class="task-right">
+            <?php 
+                $sisa_hari = (int)$task['sisa_hari'];
+                if ($sisa_hari < 0) {
+              echo '<p class="late">Terlambat</p>';
+}
+?>
+
                 <form method="POST" style="display:inline;">
                     <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
                     <input type="checkbox" name="status" onchange="this.form.submit()" <?php echo ($task['status'] == 'Selesai') ? 'checked disabled' : ''; ?>>
