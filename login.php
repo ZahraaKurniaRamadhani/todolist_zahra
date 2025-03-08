@@ -2,6 +2,8 @@
 session_start();
 include 'koneksi.php';
 
+$login_error = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -18,8 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['username'] = $user['username']; 
         header("Location: index.php");
         exit();
+    } else {
+        $login_error = "Username atau kata sandi salah.";
     }
-    
 }
 ?>
 
@@ -43,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 0;
         }
         .container {
-            background-color: #00BFFF ;
+            background-color: #00BFFF;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
@@ -85,11 +88,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-decoration: none;
             color: #007bff;
         }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+    
+    <?php if ($login_error): ?>
+        <p class="error-message"> <?php echo $login_error; ?> </p>
+    <?php endif; ?>
+    
     <form method="POST">
         <div class="input-container">
             <i class="fas fa-user"></i>
