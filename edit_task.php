@@ -15,7 +15,13 @@ if (!isset($_GET['task_id'])) {
 $task_id = $_GET['task_id'];
 $user_id = $_SESSION['user_id'];
 
-$query = "SELECT * FROM tasks WHERE id = ? AND user_id = ?";
+$query = "SELECT * FROM tasks WHERE task_id = ? AND user_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("ii", $task_id, $user_id);
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param("ii", $task_id, $user_id);
+
 $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $task_id, $user_id);
 $stmt->execute();
@@ -101,9 +107,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="text" name="task_name" class="form-control" value="<?php echo htmlspecialchars($task['task']); ?>" required>
         </div>
         <div class="mb-3">
-            <label>Sub Tugas</label>
-            <input type="text" name="subtask_name" class="form-control" value="<?php echo htmlspecialchars($task['task']); ?>" required>
+            <label>Sub-tugas</label>
+            <input type="text" name="subtask_name" class="form-control" value="" required>
         </div>
+
         <div class="mb-3">
             <label>Deskripsi</label>
             <textarea name="description" class="form-control"><?php echo htmlspecialchars($task['description']); ?></textarea>
@@ -120,6 +127,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <option value="Tidak Mendesak" <?php echo ($task['priority'] == 'Tidak Mendesak') ? 'selected' : ''; ?>>Tidak Mendesak</option>
             </select>
         </div>
+
+        
 
         <button type="submit" class="btn btn-primary">Simpan</button>
         <a href="index.php" class="btn btn-secondary">Batal</a>
