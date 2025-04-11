@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['task_id'])) {
     } elseif (isset($_POST['status'])) {
         $task_id = $_POST['task_id'];
         $status = $_POST['status'] === 'on' ? 'Selesai' : 'Belum Dikerjakan';
-        $update_query = "UPDATE tasks SET status = ? WHERE id = ? AND user_id = ?";
+        $update_query = "UPDATE tasks SET status = ? WHERE task_id = ? AND user_id = ?";
         $stmt = $conn->prepare($update_query);
         $stmt->bind_param("sii", $status, $task_id, $user_id);
         $stmt->execute();
@@ -36,18 +36,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['task_id'])) {
 $query = "SELECT t.*, s.sub_task, 
             DATEDIFF(t.due_date, CURDATE()) AS sisa_hari
           FROM tasks t 
-          LEFT JOIN subtasks s ON t.id = s.task_id 
+          LEFT JOIN subtasks s ON t.task_id = s.task_id 
           WHERE t.user_id = ? 
           ORDER BY 
             CASE 
               WHEN t.status = 'Belum Dikerjakan' THEN 1 
-              WHEN t.status = 'Sedang Dikerjakan' THEN 2 
+              WHEN t.status = 'Sedang Dibuat' THEN 2 
               WHEN t.status = 'Selesai' THEN 3 
             END, t.due_date ASC";
+
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $tasks_result = $stmt->get_result();
+
+
 
 if (isset($_POST['logout'])) {
     session_destroy();
@@ -165,17 +168,17 @@ if (isset($_POST['logout'])) {
 ?>
 
                 <form method="POST" style="display:inline;">
-                    <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
+                <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
                     <input type="checkbox" name="status" onchange="this.form.submit()" <?php echo ($task['status'] == 'Selesai') ? 'checked disabled' : ''; ?>>
                 </form>
                 <?php if ($task['status'] != 'Selesai'): ?>
                 <form action="edit_task.php" method="GET" style="display:inline;">
-                    <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
+                <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
                     <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
                 </form>
                 <?php endif; ?>
                 <form method="POST" style="display:inline;">
-                    <input type="hidden" name="task_id" value="<?php echo $task['id']; ?>">
+                <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
                     <button type="submit" name="delete" class="btn btn-danger btn-sm" onclick="return confirm('Hapus tugas ini?');"><i class="fas fa-trash"></i></button>
                 </form>
             </div>
